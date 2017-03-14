@@ -3,6 +3,7 @@ package net.venixnetwork.venixcore.player;
 import net.venixnetwork.venixcore.Core;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.net.InetAddress;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,14 +17,16 @@ public class VenixPlayer {
 
     private Core core;
     private UUID uuid;
+    private InetAddress IP;
     private String group;
 
     public VenixPlayer(Core core){
         this.core = core;
     }
 
-    public VenixPlayer(UUID uuid){
+    public VenixPlayer(UUID uuid, InetAddress IP){
         this.uuid = uuid;
+        this.IP = IP;
     }
 
 
@@ -40,10 +43,11 @@ public class VenixPlayer {
                     statement.executeQuery();
                     resultSet = statement.getResultSet();
                     if (resultSet.next()){
-                        group = resultSet.getString("grouo");
+                        group = resultSet.getString("group");
                     }else{
-                        statement1 = connection.prepareStatement("INSERT INTO `user_data` (uuid) VALUES (?);");
+                        statement1 = connection.prepareStatement("INSERT INTO `user_data` (uuid), (ip) VALUES (?, ?);");
                         statement.setString(1, uuid.toString());
+                        statement.setString(2, IP.toString());
                         statement1.executeUpdate();
                         statement1.close();
                         group = "default";
@@ -69,4 +73,8 @@ public class VenixPlayer {
 
 
     public String getGroup(){ return this.group;}
+    public void setGroup(String group){
+        this.group = group;
+    }
+    public InetAddress getIP(){ return this.IP;}
 }

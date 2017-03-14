@@ -1,12 +1,11 @@
 package net.venixnetwork.venixcore.sql;
 
 import net.venixnetwork.venixcore.Core;
+import net.venixnetwork.venixcore.permissions.Group;
 import org.bukkit.Bukkit;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.UUID;
 
 /**
  * Created by Ryan on 13/03/2017.
@@ -79,6 +78,63 @@ public class SQL {
             }
         }catch (SQLException e){
             e.printStackTrace();
+        }
+    }
+
+    public boolean doesUserExist(UUID uuid){
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try{
+            statement = connection.prepareStatement("SELECT * FROM `user_data` WHERE `uuid` = ?;");
+            statement.setString(1, uuid.toString());
+            statement.executeQuery();
+            resultSet = statement.getResultSet();
+            if (resultSet.next()){
+                return true;
+            }else{
+                return false;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+                if (resultSet != null) {
+                    statement.close();
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+
+        return false;
+    }
+    public synchronized void updateOfflinerPlayerRank(UUID uuid, String group){
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try{
+            statement = connection.prepareStatement("UPDATE `user_data` SET" +
+            " `group` = " + group + " WHERE `uuid` = ?;");
+            statement.setString(1, group);
+            statement.setString(2, uuid.toString());
+            statement.executeUpdate();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+                if (resultSet != null){
+                    resultSet.close();
+                }
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
         }
     }
     

@@ -10,6 +10,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.UUID;
 
 /**
@@ -26,8 +28,9 @@ public class LoginHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onASyncLogin(AsyncPlayerPreLoginEvent e) {
         UUID uuid = e.getUniqueId();
+        InetAddress IP = e.getAddress();
         if (!this.core.getPlayerManager().getPlayerData().containsKey(uuid)) {
-            VenixPlayer venixPlayer = new VenixPlayer(uuid);
+            VenixPlayer venixPlayer = new VenixPlayer(uuid, IP);
             venixPlayer.getInformation();
             this.core.getPlayerManager().getPlayerData().put(uuid, venixPlayer);
             if (!this.core.getGroupManager().getPlayerGroup().containsKey(uuid)) {
