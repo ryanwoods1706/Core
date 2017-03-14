@@ -1,5 +1,6 @@
 package net.venixnetwork.venixcore;
 
+import net.venixnetwork.venixcore.commands.GroupCMD;
 import net.venixnetwork.venixcore.events.ChatHandler;
 import net.venixnetwork.venixcore.events.LoginHandler;
 import net.venixnetwork.venixcore.permissions.GroupManager;
@@ -30,10 +31,10 @@ public class Core extends JavaPlugin {
         this.configManager = new ConfigManager(this);
         this.configManager.initiateConfig();
         this.groupManager = new GroupManager(this);
-        this.venixPlayer = new VenixPlayer(this);
         this.playerManager = new PlayerManager(this);
         this.sql = new SQL(this);
         this.serverManager = new ServerManager(this);
+        this.sql.openConnection();
         registerCom();
         registerEve();
     }
@@ -51,6 +52,7 @@ public class Core extends JavaPlugin {
 
     }
     private void registerCom(){
+        getCommand("group").setExecutor(new GroupCMD(this));
 
     }
 

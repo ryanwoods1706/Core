@@ -20,13 +20,10 @@ public class VenixPlayer {
     private InetAddress IP;
     private String group;
 
-    public VenixPlayer(Core core){
-        this.core = core;
-    }
-
-    public VenixPlayer(UUID uuid, InetAddress IP){
+    public VenixPlayer(UUID uuid, InetAddress IP, Core core){
         this.uuid = uuid;
         this.IP = IP;
+        this.core = core;
     }
 
 
@@ -45,9 +42,9 @@ public class VenixPlayer {
                     if (resultSet.next()){
                         group = resultSet.getString("group");
                     }else{
-                        statement1 = connection.prepareStatement("INSERT INTO `user_data` (uuid), (ip) VALUES (?, ?);");
-                        statement.setString(1, uuid.toString());
-                        statement.setString(2, IP.toString());
+                        statement1 = connection.prepareStatement("INSERT INTO `user_data` (uuid, ip) VALUES (?, ?);");
+                        statement1.setString(1, uuid.toString());
+                        statement1.setString(2, IP.toString());
                         statement1.executeUpdate();
                         statement1.close();
                         group = "default";
@@ -69,6 +66,20 @@ public class VenixPlayer {
 
             }
         }.runTaskAsynchronously(this.core);
+    }
+
+    public synchronized void saveData(){
+        try{
+            Connection connection = this.core.getSql().getConnection();
+            PreparedStatement statement = connection.prepareStatement("UPDATE `user_data` SET `ip` = ?, `group` = ? WHERE `uuid` = ?");
+            statement.setString(1, this.IP.toString());
+            statement.setString(2, this.group);
+            statement.setString(3, this.uuid.toString());
+            statement.executeUpdate();
+            statement.close();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
 

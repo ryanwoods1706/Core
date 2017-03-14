@@ -1,6 +1,7 @@
 package net.venixnetwork.venixcore.permissions;
 
 import net.venixnetwork.venixcore.Core;
+import net.venixnetwork.venixcore.permissions.groups.Default;
 import net.venixnetwork.venixcore.permissions.groups.Owner;
 import net.venixnetwork.venixcore.player.VenixPlayer;
 import org.bukkit.entity.Player;
@@ -46,6 +47,25 @@ public class GroupManager {
     public List<Group> getGroupList(){
         List<Group> groups = new ArrayList<Group>();
         groups.add(new Owner());
+        groups.add(new Default());
         return groups;
+    }
+
+    public boolean doesGroupExist(String input){
+        for (Group group : this.core.getGroupManager().getGroupList()){
+            if (input.equalsIgnoreCase(group.name())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removePermissions(Player pl){
+        if (pl.isOnline()) {
+            VenixPlayer venixPlayer = this.core.getPlayerManager().getPlayerData().get(pl.getUniqueId());
+            for (String node : getPlayerGroupCla(venixPlayer.getGroup()).perms()) {
+                pl.addAttachment(this.core, node, false);
+            }
+        }
     }
 }

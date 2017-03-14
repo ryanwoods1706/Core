@@ -3,6 +3,7 @@ package net.venixnetwork.venixcore.sql;
 import net.venixnetwork.venixcore.Core;
 import net.venixnetwork.venixcore.permissions.Group;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.sql.*;
 import java.util.UUID;
@@ -19,85 +20,86 @@ public class SQL {
     private String username;
     private String password;
 
-    public SQL(Core core){
+    public SQL(Core core) {
         this.core = core;
-        this.ip  = this.core.getConfig().getString("SQL.ip");
+        this.ip = this.core.getConfig().getString("SQL.ip");
         this.database = this.core.getConfig().getString("SQL.database");
         this.username = this.core.getConfig().getString("SQL.user");
         this.password = this.core.getConfig().getString("SQL.password");
     }
-    
-    
-    public Connection getConnection(){
+
+
+    public Connection getConnection() {
         try {
-            if (this.connection.isClosed()) {
+            if (this.connection.isClosed() || this.connection == null) {
                 Bukkit.getLogger().info("[SQL] Attempting to re-open the connection with the database!");
                 openConnection();
             }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             Bukkit.getLogger().info("[SQL] A fatal error occured whilst checking connection");
             return null;
         }
         return this.connection;
     }
-    
-    public void openConnection(){
-        try{
+
+    public void openConnection() {
+        try {
             this.connection = DriverManager.getConnection("jdbc:mysql://" + ip + "/" + database, username, password);
             generateTables();
             Bukkit.getLogger().info("[SQL] Connected");
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
             Bukkit.getLogger().info("[SQL] Failed to connect!");
             Bukkit.getLogger().info("[SQL] This plugin is SQL dependant!");
         }
     }
-    public void closeConnection(){
-        try{
+
+    public void closeConnection() {
+        try {
             this.connection.close();
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    private void generateTables(){
-        try{
+
+    private void generateTables() {
+        try {
             Statement statement = this.connection.createStatement();
-            try{
+            try {
                 statement.executeUpdate("CREATE TABLE IF NOT EXISTS `user_data`(`uuid` VARCHAR(60),`group` VARCHAR(60) NOT NULL DEFAULT 'default', `ip` VARCHAR(15));");
-            }catch (SQLException e){
+            } catch (SQLException e) {
                 e.printStackTrace();
-            }finally {
-                try{
-                    if (statement != null){
+            } finally {
+                try {
+                    if (statement != null) {
                         statement.close();
                     }
-                }catch (SQLException e){
+                } catch (SQLException e) {
 
                 }
             }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public boolean doesUserExist(UUID uuid){
+    public boolean doesUserExist(UUID uuid) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-        try{
+        try {
             statement = connection.prepareStatement("SELECT * FROM `user_data` WHERE `uuid` = ?;");
             statement.setString(1, uuid.toString());
             statement.executeQuery();
             resultSet = statement.getResultSet();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             try {
                 if (statement != null) {
                     statement.close();
@@ -105,37 +107,55 @@ public class SQL {
                 if (resultSet != null) {
                     statement.close();
                 }
-            }catch (SQLException e){
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
 
         return false;
     }
-    public synchronized void updateOfflinerPlayerRank(UUID uuid, String group){
+
+    public synchronized void updateOfflinerPlayerRank(UUID uuid, String group) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
-        try{
+        try {
             statement = connection.prepareStatement("UPDATE `user_data` SET" +
-            " `group` = " + group + " WHERE `uuid` = ?;");
+                    " `group` = " + group + " WHERE `uuid` = ?;");
             statement.setString(1, group);
             statement.setString(2, uuid.toString());
             statement.executeUpdate();
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
-        }
-        finally {
-            try{
-                if (statement != null){
+        } finally {
+            try {
+                if (statement != null) {
                     statement.close();
                 }
-                if (resultSet != null){
+                if (resultSet != null) {
                     resultSet.close();
                 }
-            }catch (SQLException e){
+            } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
-    
+
+    public Group getUserGroup(final UUID uuid) {
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.prepareStatement("SELECT * FROM `user_data` WHERE `uuid` = ?;");
+            statement.setString(1, uuid.toString());
+            statement.executeQuery();
+            resultSet = statement.getResultSet();
+            if (resultSet.next()) {
+                Group group = core.getGroupManager().getPlayerGroupCla(resultSet.getString("group"));
+                return group;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
