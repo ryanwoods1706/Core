@@ -1,0 +1,4 @@
+name: VenixCore
+author: Ryan
+version: 0.1
+main: net.venixnetwork.venixcore.Core
