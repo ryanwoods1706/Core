@@ -49,4 +49,10 @@ public class LoginHandler implements Listener {
             pl.setDisplayName(this.core.getGroupManager().getPlayerGroupCla(venixPlayer.getGroup()).prefix() + pl.getName());
         }
     }
+
+    @EventHandler
+    public void onLogin(PlayerLoginEvent e){
+        Player pl = e.getPlayer();
+        this.core.getGroupManager().addPerms(pl);
+    }
 }

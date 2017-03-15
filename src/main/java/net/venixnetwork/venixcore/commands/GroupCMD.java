@@ -2,6 +2,7 @@ package net.venixnetwork.venixcore.commands;
 
 import net.venixnetwork.venixcore.Core;
 import net.venixnetwork.venixcore.permissions.Group;
+import net.venixnetwork.venixcore.permissions.groups.Default;
 import net.venixnetwork.venixcore.player.VenixPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -23,6 +24,10 @@ public class GroupCMD implements CommandExecutor {
 
 
     public boolean onCommand(CommandSender sender, Command command, String s, String[] args) {
+        if (!sender.hasPermission("perms.admin")){
+            sender.sendMessage("§cYou do not have permission to perform this command!");
+            return true;
+        }
         try{
             if (args[0].equalsIgnoreCase("list")){
                 sender.sendMessage("§e" + this.core.getGroupManager().getGroupList().toString());
@@ -48,6 +53,11 @@ public class GroupCMD implements CommandExecutor {
                     venixPlayer.saveData();
                     this.core.getPlayerManager().getPlayerData().put(player.getUniqueId(), venixPlayer);
                     sender.sendMessage("§aSuccessfully updated: §e" + player.getName() + "'s §arank to: §e" + args[2]);
+                    Player onlinePlayer = Bukkit.getPlayer(player.getName());
+                    onlinePlayer.setDisplayName(this.core.getGroupManager().getPlayerGroupCla(venixPlayer.getGroup()).prefix() + onlinePlayer.getName());
+                    this.core.getGroupManager().removePermissions(onlinePlayer);
+                    this.core.getGroupManager().addPerms(onlinePlayer);
+                    onlinePlayer.sendMessage("§aYou're permissions have now been updated!");
                 }
 
             }
@@ -62,17 +72,22 @@ public class GroupCMD implements CommandExecutor {
                     return true;
                 }
                 if (!player.isOnline()){
-                    Group oldGroup = this.core.getSql().getUserGroup(player.getUniqueId());
                     String defaultGroup = "default";
                     this.core.getSql().updateOfflinerPlayerRank(player.getUniqueId(), defaultGroup);
                 }
                 if (player.isOnline()){
                     VenixPlayer venixPlayer = this.core.getPlayerManager().getPlayerData().get(player.getUniqueId());
-                    venixPlayer.setGroup(args[2]);
-                    venixPlayer.saveData();
                     Player onlinePlayer = Bukkit.getPlayer(player.getName());
                     onlinePlayer.setDisplayName(player.getName());
+                    this.core.getGroupManager().removePermissions(Bukkit.getPlayer(player.getName()));
+                    venixPlayer.setGroup(new Default().name());
+                    this.core.getGroupManager().addPerms(Bukkit.getPlayer(player.getName()));
+                    venixPlayer.saveData();
                     sender.sendMessage("§aSuccessfully removed: §e" +player.getName() + "'s rank!");
+                    this.core.getGroupManager().removePermissions(onlinePlayer);
+                    this.core.getGroupManager().addPerms(onlinePlayer);
+                    onlinePlayer.sendMessage("§aYou're permissions have now been updated!");
+
                 }
 
             }

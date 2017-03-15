@@ -4,6 +4,7 @@ import net.venixnetwork.venixcore.Core;
 import net.venixnetwork.venixcore.permissions.groups.Default;
 import net.venixnetwork.venixcore.permissions.groups.Owner;
 import net.venixnetwork.venixcore.player.VenixPlayer;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -26,14 +27,23 @@ public class GroupManager {
 
 
     public void addPerms(Player pl){
-        VenixPlayer venixPlayer = this.core.getPlayerManager().getPlayerData().get(pl.getUniqueId());
         if (pl != null){
+            VenixPlayer venixPlayer = this.core.getPlayerManager().getPlayerData().get(pl.getUniqueId());
             for (String string : getPlayerGroupCla(venixPlayer.getGroup()).perms()){
                 pl.addAttachment(this.core, string, true);
             }
+            Bukkit.getLogger().info("[PERMS] Successfully added permissions to player: " + pl.getName());
         }
     }
 
+    public void removePermissions(Player pl){
+        if (pl.isOnline()) {
+            VenixPlayer venixPlayer = this.core.getPlayerManager().getPlayerData().get(pl.getUniqueId());
+            for (String node : getPlayerGroupCla(venixPlayer.getGroup()).perms()) {
+                pl.addAttachment(this.core, node, false);
+            }
+        }
+    }
 
     public Group getPlayerGroupCla(String groupName){
         for (Group group : getGroupList()){
@@ -60,12 +70,4 @@ public class GroupManager {
         return false;
     }
 
-    public void removePermissions(Player pl){
-        if (pl.isOnline()) {
-            VenixPlayer venixPlayer = this.core.getPlayerManager().getPlayerData().get(pl.getUniqueId());
-            for (String node : getPlayerGroupCla(venixPlayer.getGroup()).perms()) {
-                pl.addAttachment(this.core, node, false);
-            }
-        }
-    }
 }

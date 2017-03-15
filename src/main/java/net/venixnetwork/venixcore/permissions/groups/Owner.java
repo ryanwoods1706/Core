@@ -3,6 +3,7 @@ package net.venixnetwork.venixcore.permissions.groups;
 import net.venixnetwork.venixcore.permissions.Group;
 import org.bukkit.ChatColor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,7 +16,10 @@ public class Owner implements Group{
     }
 
     public List<String> perms() {
-        return null;
+        List<String> perms = new ArrayList<String>();
+        perms.add("perms.owner");
+        perms.add("perms.admin");
+        return perms;
     }
 
     public String name() {
