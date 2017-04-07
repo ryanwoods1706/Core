@@ -41,7 +41,7 @@ public class LoginHandler implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent e){
         Player pl = e.getPlayer();
         VenixPlayer venixPlayer = this.core.getPlayerManager().getPlayerData().get(pl.getUniqueId());
@@ -53,6 +53,7 @@ public class LoginHandler implements Listener {
     @EventHandler
     public void onLogin(PlayerLoginEvent e){
         Player pl = e.getPlayer();
+        this.core.getGroupManager().removePermissions(pl);
         this.core.getGroupManager().addPerms(pl);
     }
 }

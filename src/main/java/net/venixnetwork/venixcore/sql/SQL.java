@@ -158,4 +158,21 @@ public class SQL {
         return null;
     }
 
+    public long getTotalGroupMembers(String group){
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try{
+            statement = connection.prepareStatement("SELECT COUNT(*) AS groupTotal FROM user_data WHERE group = ?");
+            statement.setString(1, group);
+            statement.executeQuery();
+            resultSet = statement.getResultSet();
+            if (resultSet.next()) {
+                return resultSet.getLong("groupTotal");
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
 }

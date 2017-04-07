@@ -51,7 +51,8 @@ public class GroupManager {
                 return group;
             }
         }
-        return null;
+        Bukkit.getLogger().info("[CORE] [Perms] Could not find group class, GM Line 54, assigning default");
+        return new Default();
     }
 
     public List<Group> getGroupList(){

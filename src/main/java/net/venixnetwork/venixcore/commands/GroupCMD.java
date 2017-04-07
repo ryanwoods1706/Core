@@ -95,6 +95,15 @@ public class GroupCMD implements CommandExecutor {
 
             }
             else if (args[0].equalsIgnoreCase("groupinfo")){
+                if (!this.core.getGroupManager().doesGroupExist(args[1])){
+                    sender.sendMessage("§cThat group does not exist!");
+                    return true;
+                }
+                sender.sendMessage("§eAttempting to get all permissions associated with that group!");
+                sender.sendMessage("§a---------------------------------");
+                sender.sendMessage(this.core.getGroupManager().getPlayerGroupCla(args[1]).perms().toString());
+                sender.sendMessage("§a---------------------------------");
+                sender.sendMessage("§eTotal Number of Members: " + this.core.getSql().getTotalGroupMembers(args[1])); //TODO ADD SQL QUERY
 
             }
             else{
